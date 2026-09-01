@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stanford IDP Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2e2d29;
+    --ink-soft:#6b675f;
+    --page:#f6f5f2;
+    --card:#ffffff;
+    --line:#e3e0d8;
+    --cardinal:#8c1515;
+    --cardinal-bg:#fbeaea;
+    --sky:#016895;
+    --sky-bg:#e5f1f6;
+    --poppy:#d1660f;
+    --poppy-bg:#fbead9;
+    --palo:#175e54;
+    --palo-bg:#e5efec;
+    --plum:#620059;
+    --plum-bg:#f2e6f0;
+    --grey-bg:#efeeea;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page);
+    color:var(--ink);
+    font-family:'Arimo', sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 28px 80px;}
+
+  header{margin-bottom:26px;}
+  header h1{
+    font-size:1.85rem;
+    font-weight:700;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    font-size:0.88rem;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- stat cards ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:20px;
+  }
+  .stat-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-top:3px solid var(--accent);
+    border-radius:6px;
+    padding:18px 20px;
+  }
+  .stat-card .num{font-size:1.85rem;font-weight:700;line-height:1;}
+  .stat-card .label{font-size:0.82rem;color:var(--ink-soft);margin-top:6px;}
+
+  /* ---------- chart card ---------- */
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:22px 24px;
+    margin-bottom:20px;
+  }
+  .panel h2{font-size:1.05rem;font-weight:700;margin:0 0 2px;}
+  .panel .sub{font-size:0.82rem;color:var(--ink-soft);margin:0 0 18px;}
+
+  .chart{
+    display:flex;
+    align-items:flex-end;
+    gap:28px;
+    padding:10px 10px 0;
+    height:190px;
+  }
+  .bar-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+    flex:1;
+  }
+  .bar-count{font-size:0.82rem;font-weight:600;margin-bottom:6px;}
+  .bar{
+    width:34px;
+    background:var(--cardinal);
+    border-radius:3px 3px 0 0;
+  }
+  .bar-label{
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    margin-top:8px;
+    white-space:nowrap;
+  }
+
+  /* ---------- under-review cards ---------- */
+  .review-cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+  }
+  .review-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-left:3px solid var(--accent);
+    border-radius:5px;
+    padding:14px 16px;
+  }
+  .review-card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .review-card-name{font-size:0.92rem;font-weight:600;line-height:1.3;}
+  .review-card-codes{display:flex;flex-wrap:wrap;gap:6px;}
+  .code-chip{
+    font-family:'Roboto Mono', monospace;
+    font-size:0.7rem;
+    background:var(--grey-bg);
+    color:var(--ink-soft);
+    padding:3px 8px;
+    border-radius:3px;
+  }
+
+  /* ---------- pills ---------- */
+  .pill{
+    display:inline-block;
+    font-size:0.72rem;
+    font-weight:600;
+    padding:3px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  /* ---------- controls ---------- */
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .controls input[type="text"]{
+    flex:1 1 260px;
+    padding:10px 14px;
+    font-family:'Arimo', sans-serif;
+    font-size:0.9rem;
+    border:1px solid var(--line);
+    border-radius:5px;
+    background:var(--card);
+    color:var(--ink);
+  }
+  .controls select{
+    padding:9px 12px;
+    font-family:'Arimo', sans-serif;
+    font-size:0.85rem;
+    border:1px solid var(--line);
+    border-radius:5px;
+    background:var(--card);
+    color:var(--ink);
+  }
+  .controls .count{
+    font-size:0.82rem;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    margin-left:auto;
+  }
+
+  /* ---------- table ---------- */
+  table.registry{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  table.registry th{
+    text-align:left;
+    font-size:0.68rem;
+    font-weight:700;
+    letter-spacing:0.03em;
+    color:var(--ink-soft);
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    background:var(--grey-bg);
+    white-space:nowrap;
+  }
+  table.registry td{
+    padding:13px 14px;
+    border-bottom:1px solid var(--line);
+    font-size:0.86rem;
+    vertical-align:top;
+  }
+  table.registry tr:last-child td{border-bottom:none;}
+  .prog-name{font-weight:600;}
+  .show-plans{
+    display:inline-block;
+    margin-top:3px;
+    font-size:0.78rem;
+    color:var(--cardinal);
+    cursor:pointer;
+    user-select:none;
+  }
+  .show-plans:hover{text-decoration:underline;}
+  .plan-subrow td{
+    background:var(--grey-bg);
+    padding:0;
+  }
+  .plan-subtable{
+    width:100%;
+    border-collapse:collapse;
+  }
+  .plan-subtable td{
+    padding:8px 14px;
+    font-size:0.8rem;
+    border-bottom:1px solid var(--line);
+    color:var(--ink-soft);
+  }
+  .plan-subtable tr:last-child td{border-bottom:none;}
+  .plan-subtable .code{font-family:'Roboto Mono', monospace;color:var(--cardinal);}
+  .mono{font-family:'Roboto Mono', monospace;font-size:0.82rem;color:var(--ink-soft);}
+
+  .empty-row td{
+    text-align:center;
+    padding:50px 10px;
+    color:var(--ink-soft);
+  }
+
+  section{margin-bottom:28px;}
+  section h2{font-size:1.05rem;font-weight:700;margin:0 0 2px;}
+  section .sub{font-size:0.82rem;color:var(--ink-soft);margin:0 0 14px;}
+
+  footer{
+    margin-top:36px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-size:0.78rem;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:900px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .review-cards{grid-template-columns:repeat(2,1fr);}
+    table.registry{display:block;overflow-x:auto;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Stanford's Interdisciplinary Programs (IDP) Tracker</h1>
+    <p id="updatedLine">Last update —</p>
+  </header>
+
+  <div class="stats" id="statCards"></div>
+
+  <div class="panel">
+    <h2>Programs by next review cycle</h2>
+    <p class="sub">Review workload by upcoming academic year</p>
+    <div class="chart" id="chart"></div>
+  </div>
+
+  <section>
+    <h2>Programs currently under review</h2>
+    <p class="sub">Programs with an active status beyond "No Review This Year" or "Closing"</p>
+    <div class="review-cards" id="reviewCards"></div>
+  </section>
+
+  <section>
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Search programs…">
+      <select id="statusSelect"><option value="all">All statuses</option></select>
+      <select id="careerSelect">
+        <option value="all">All careers</option>
+        <option value="Undergraduate">Undergraduate</option>
+        <option value="Graduate">Graduate</option>
+      </select>
+      <span class="count" id="countLine"></span>
+    </div>
+
+    <table class="registry">
+      <thead>
+        <tr>
+          <th>Program</th>
+          <th>Career</th>
+          <th>Plans</th>
+          <th>Review term</th>
+          <th>Initiated</th>
+          <th>Authorization period</th>
+          <th>Next review cycle</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </section>
+
+  <footer>
+    Pulled from a live Smartsheet maintained by the program's administrators. Figures reflect the sheet's last save — check with the relevant department for anything time‑sensitive.
+  </footer>
+
+</div>
+
+<script>
+const PROGRAMS = [{"name": "African and African-American Studies", "level": "Undergraduate", "reviewTerm": "5", "initiated": "1969", "authPeriod": "2026-3031", "nextReview": "2029-2030", "senate": "Yes", "status": "Approved", "plans": [{"code": "AFRAM-BA", "title": "Afric/Afro-Amer Stu (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "-"}, {"code": "AFRAM-MIN", "title": "Afric/Afro-Amer Stu (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "-"}]}, {"name": "American Studies", "level": "Undergraduate", "reviewTerm": "8", "initiated": "1975", "authPeriod": "2023-2031", "nextReview": "2029-2030", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "AMSTU-BA", "title": "American Studies (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "-"}, {"code": "AMSTU-MIN", "title": "American Studies (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "-"}]}, {"name": "Archaeology", "level": "Undergraduate", "reviewTerm": "5", "initiated": "2000", "authPeriod": "2026-2031", "nextReview": "2029-2030", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "ARCHA-BA", "title": "Archaeology (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "ARCHA-MIN", "title": "Archaeology (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "-"}]}, {"name": "Honors in the Arts", "level": "Undergraduate", "reviewTerm": "8", "initiated": "-", "authPeriod": "2025-2033", "nextReview": "2031-2032", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "ARTS-IHN", "title": "Honors in the Arts (IHN)", "degree": "-", "type": "(IHN) Interdisc Honors", "options": "Interdisciplinary Honors", "idp": "Yes"}]}, {"name": "Biophysics", "level": "Graduate", "reviewTerm": "5", "initiated": "1959", "authPeriod": "2024-2029", "nextReview": "2027-2028", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "BIOPH-PHD", "title": "Biophysics (PhD)", "degree": "PHD - Doctor of Philosophy", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Comparative Studies in Race and Ethnicity", "level": "Undergraduate", "reviewTerm": "5", "initiated": "1997", "authPeriod": "2024-2029", "nextReview": "2027-2028", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "ASAM-BA", "title": "Asian American Stu (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "ASAM-MIN", "title": "Asian American Stu (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}, {"code": "CHILT-BA", "title": "Chicana/o-Latina/o St (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "CHILT-MIN", "title": "Chicana/o-Latina/o St (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}, {"code": "CSRE-BA", "title": "Comp Stu Race & Eth (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "CSRE-IHN", "title": "CompStd Race & Ethnicity (IHN)", "degree": "-", "type": "(IHN) Interdisc Honors", "options": "Interdisciplinary Honors", "idp": "Yes"}, {"code": "CSRE-MIN", "title": "Comp Stu Race & Eth (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}, {"code": "JEWSH-BA", "title": "Jewish Studies (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "NATAM-BA", "title": "Native Amer Studies (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "NATAM-MIN", "title": "Native Amer Studies (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Comparative Studies in Race and Ethnicity", "level": "Graduate", "reviewTerm": "5", "initiated": "2019", "authPeriod": "2024-2029", "nextReview": "2027-2028", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "CSRE-PMN", "title": "Comp Stu Race & Eth (PMN)", "degree": "-", "type": "(PMN) PhD Minor", "options": "PhD Minor", "idp": "Yes"}]}, {"name": "Cancer Biology", "level": "Graduate", "reviewTerm": "5", "initiated": "1978", "authPeriod": "2024-2029", "nextReview": "2027-2028", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "CANBI-MS", "title": "Cancer Biology (MS)", "degree": "MS - Master of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "CANBI-PHD", "title": "Cancer Biology (PhD)", "degree": "PHD - Doctor of Philosophy", "type": "(MAJ) Major", "options": "-", "idp": "-"}]}, {"name": "Institute for Computational and Mathematical Engr", "level": "Graduate", "reviewTerm": "5", "initiated": "2005", "authPeriod": "2025-2030", "nextReview": "2028-2029", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "CME-MS", "title": "Comput & Math Engr (MS)", "degree": "MS - Master of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "CME-PHD", "title": "Comput & Math Engr (PHD)", "degree": "PHD - Doctor of Philosophy", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Data Science", "level": "Undergraduate", "reviewTerm": "6", "initiated": "2022", "authPeriod": "2027-2033", "nextReview": "2031-2032", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "DATSC-BA", "title": "Data Science (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "DATSC-BS", "title": "Data Science (BS)", "degree": "BS - Bachelor of Science", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "DATSCI-MIN", "title": "Data Science (Min)", "degree": "-", "type": "(MIN) Minor", "options": "-", "idp": "Yes"}]}, {"name": "Institute for International Studies", "level": "Undergraduate", "reviewTerm": "5", "initiated": "2010", "authPeriod": "2023-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Letter Sent", "plans": [{"code": "DDRL-IHN", "title": "Dem, Dev, and the Rule of Law", "degree": "-", "type": "(IHN) Interdisc Honors", "options": "Interdisciplinary Honors", "idp": "Yes"}]}, {"name": "Hasso Plattner Institute of Design", "level": "Undergraduate", "reviewTerm": "3", "initiated": "2022", "authPeriod": "2026-2029", "nextReview": "2027-2028", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "DESIGN-BS", "title": "Design (BS)", "degree": "BS - Bachelor of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Hasso Plattner Institute of Design", "level": "Graduate", "reviewTerm": "5", "initiated": "2022", "authPeriod": "2026-2031", "nextReview": "2029-2030", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "DESIGN-MS", "title": "Design (MS)", "degree": "MS - Master of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "East Asian Studies", "level": "Graduate", "reviewTerm": "4", "initiated": "1973", "authPeriod": "2024-2029", "nextReview": "2027-2028", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "EASST-MA", "title": "East Asian Studies (MA)", "degree": "MA - Master of Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Earth Systems", "level": "Undergraduate", "reviewTerm": "8", "initiated": "1992", "authPeriod": "2020-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Review This AY", "plans": [{"code": "EASYS-BS", "title": "Earth Systems (BS)", "degree": "BS - Bachelor of Science", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "EASYS-MIN", "title": "Earth Systems (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Earth Systems", "level": "Graduate", "reviewTerm": "5", "initiated": "2015", "authPeriod": "2026-2031", "nextReview": "2029-2030", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "EASYS-MA", "title": "Earth Systems (MA)", "degree": "MA - Master of Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "EASYS-MS", "title": "Earth Systems (MS)", "degree": "MS - Master of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Graduate School of Education", "level": "Graduate", "reviewTerm": "5", "initiated": "1988", "authPeriod": "2025-2030", "nextReview": "2028-2029", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "ED-IHN", "title": "Education (IHn)", "degree": "-", "type": "(IHN) Interdisc Honors", "options": "Interdisciplinary Honors", "idp": "Yes"}, {"code": "EDUC-MIN", "title": "Education (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Emmett Interdisc Prog in Environment & Resources (E-IPER)", "level": "Graduate", "reviewTerm": "5", "initiated": "1993", "authPeriod": "2026-2031", "nextReview": "2029-2030", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "ENVRES-MS", "title": "Environment and Resources (MS)", "degree": "MS - Master of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "ENVRES-PHD", "title": "Environment and Resource (PhD)", "degree": "PHD - Doctor of Philosophy", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Ethics in Society", "level": "Undergraduate", "reviewTerm": "8", "initiated": "1990", "authPeriod": "2024-2032", "nextReview": "2030-2031", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "ETHSO-IHN", "title": "Ethics in Society (IHn)", "degree": "-", "type": "(IHN) Interdisc Honors", "options": "Interdisciplinary Honors", "idp": "Yes"}, {"code": "ETHSO-MIN", "title": "Ethics in Society (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Feminist, Gender, and Sexuality Studies", "level": "Undergraduate", "reviewTerm": "5", "initiated": "1990", "authPeriod": "2022-2027", "nextReview": "2026-2027", "senate": "Yes", "status": "Materials Received", "plans": [{"code": "FGSS-BA", "title": "Fem, Gen, & Sex Studies (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "FGSS-IHN", "title": "Fem, Gen, & Sex Studies (IHn)", "degree": "-", "type": "(IHN) Interdisc Honors", "options": "Interdisciplinary Honors", "idp": "Yes"}, {"code": "FGSS-MIN", "title": "Fem, Gen, & Sex Studies (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "-"}]}, {"name": "Feminist, Gender, and Sexuality Studies", "level": "Graduate", "reviewTerm": "5", "initiated": "2013", "authPeriod": "2026-2031", "nextReview": "2029-2030", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "FGSS-PMN", "title": "Fem, Gen, & Sex Studies (PMn)", "degree": "-", "type": "(PMN) PhD Minor", "options": "PhD Minor", "idp": "Yes"}]}, {"name": "Stanford Global Studies", "level": "Undergraduate", "reviewTerm": "5", "initiated": "2015", "authPeriod": "2023-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Review Scheduled", "plans": [{"code": "GLBLST-MIN", "title": "Global Studies (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Human Biology", "level": "Undergraduate", "reviewTerm": "8", "initiated": "1969", "authPeriod": "2025-2033", "nextReview": "2031-2032", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "HUMBI-BA", "title": "Human Biology (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "HUMBI-BS", "title": "Human Biology (BS)", "degree": "BS - Bachelor of Science", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "HUMBI-MIN", "title": "Human Biology (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Center for Human Rights and International Justice", "level": "Undergraduate", "reviewTerm": "8", "initiated": "2016", "authPeriod": "2024-2032", "nextReview": "2030-2031", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "HUMRTS-MIN", "title": "Human Rights (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Engineering Dean", "level": "Undergraduate", "reviewTerm": "5", "initiated": "1985", "authPeriod": "2024-2029", "nextReview": "2027-2028", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "IDMEN-BS", "title": "Indiv Des Major-Engr (BS)", "degree": "BS - Bachelor of Science", "type": "(IDM) Indiv Designed Major", "options": "Departmental Honors", "idp": "Yes"}]}, {"name": "Immunology", "level": "Graduate", "reviewTerm": "5", "initiated": "1988", "authPeriod": "2023-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Review This AY", "plans": [{"code": "IMMUN-MS", "title": "Immunology (MS)", "degree": "MS - Master of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "IMMUN-PHD", "title": "Immunology (PhD)", "degree": "PHD - Doctor of Philosophy", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "International Policy", "level": "Graduate", "reviewTerm": "3", "initiated": "1982", "authPeriod": "2025-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Review This AY", "plans": [{"code": "INPOL-MA", "title": "International Policy (MA)", "degree": "MA - Master of Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Institute for International Studies", "level": "Undergraduate", "reviewTerm": "5", "initiated": "2000", "authPeriod": "2023-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Review This AY", "plans": [{"code": "INSST-IHN", "title": "Intl Security Studies (IHn)", "degree": "-", "type": "(IHN) Interdisc Honors", "options": "Interdisciplinary Honors", "idp": "Yes"}]}, {"name": "International Relations", "level": "Undergraduate", "reviewTerm": "8", "initiated": "1947", "authPeriod": "2025-2033", "nextReview": "2031-2032", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "INTLR-BA", "title": "International Relat (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "INTLR-MIN", "title": "International Relat (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Latin-American Studies", "level": "Graduate", "reviewTerm": "5", "initiated": "2006", "authPeriod": "2027-3032", "nextReview": "2030-2031", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "LAMER-MA", "title": "Latin American Studies (MA)", "degree": "MA - Master of Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "MLA Program", "level": "Graduate", "reviewTerm": "3", "initiated": "1991", "authPeriod": "2025-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Review This AY", "plans": [{"code": "MLA-MLA", "title": "Master of Liberal Arts", "degree": "MLA - Master of Liberal Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Modern Thought and Literature", "level": "Graduate", "reviewTerm": "5", "initiated": "1969", "authPeriod": "2026-2031", "nextReview": "2029-2030", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "MTLIT-MA", "title": "Mod Thought & Lit (MA)", "degree": "MA - Master of Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "MTLIT-PHD", "title": "Mod Thought & Lit (PhD)", "degree": "PHD - Doctor of Philosophy", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Neurosciences Program", "level": "Graduate", "reviewTerm": "5", "initiated": "1969", "authPeriod": "2023-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Review This AY", "plans": [{"code": "NEURS-PHD", "title": "Neurosciences (PhD)", "degree": "PHD - Doctor of Philosophy", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Public Policy", "level": "Undergraduate", "reviewTerm": "8", "initiated": "1982", "authPeriod": "2023-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Review This AY", "plans": [{"code": "PUBPO-BA", "title": "Public Policy (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "PUBPO-MIN", "title": "Public Policy (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Public Policy", "level": "Graduate", "reviewTerm": "5", "initiated": "2008", "authPeriod": "2023-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Materials Received", "plans": [{"code": "PUBPO-MA", "title": "Public Policy (MA)", "degree": "MA - Master of Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "PUBPO-MPP", "title": "Public Policy (MPP)", "degree": "MPP - Master of Public Policy", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Russian, East European, and Eurasian Studies", "level": "Graduate", "reviewTerm": "5", "initiated": "1973", "authPeriod": "2023-2028", "nextReview": "2026-2027", "senate": "Yes", "status": "Delayed One Year", "plans": [{"code": "REES-MA", "title": "Rus & E Eurp & Eurasian (MA)", "degree": "MA - Master of Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Stem Cell Bio Regenerative Medicine", "level": "Graduate", "reviewTerm": "5", "initiated": "2011", "authPeriod": "2026-2031", "nextReview": "2029-2030", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "STMRM-MS", "title": "Stem Cell Bio and Regen Med", "degree": "MS - Master of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "STMRM-PHD", "title": "Stem Cell Bio and Regen Med", "degree": "PHD - Doctor of Philosophy", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Science, Technology, and Society", "level": "Undergraduate", "reviewTerm": "5", "initiated": "1985", "authPeriod": "2022-2027", "nextReview": "2025-2026", "senate": "Yes", "status": "Senate Session Scheduled", "plans": [{"code": "STS-BA", "title": "Science, Tech, & Soc (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "STS-BS", "title": "Science, Tech, & Soc (BS)", "degree": "BS - Bachelor of Science", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "STS-IHN", "title": "Science, Tech, & Soc (IHn)", "degree": "-", "type": "(IHN) Interdisc Honors", "options": "Interdisciplinary Honors", "idp": "Yes"}]}, {"name": "Sustainability Science and Practice", "level": "Graduate", "reviewTerm": "5", "initiated": "2017", "authPeriod": "2026-2031", "nextReview": "2029-2030", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "SUSTSCI-MA", "title": "Sustainability Sci & Prac (MA)", "degree": "MA - Master of Arts", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}, {"code": "SUSTSCI-MS", "title": "Sustainability Sci & Prac (MS)", "degree": "MS - Master of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Symbolic Systems", "level": "Undergraduate", "reviewTerm": "8", "initiated": "1986", "authPeriod": "2024-2032", "nextReview": "2030-2031", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "SYMBO-BS", "title": "Symbolic Systems (BS)", "degree": "BS - Bachelor of Science", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "SYMBO-MIN", "title": "Symbolic Systems (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}, {"name": "Symbolic Systems", "level": "Graduate", "reviewTerm": "5", "initiated": "1986", "authPeriod": "2024-2029", "nextReview": "2027-2028", "senate": "Yes", "status": "No Review This Year", "plans": [{"code": "SYMBO-MS", "title": "Symbolic Systems (MS)", "degree": "MS - Master of Science", "type": "(MAJ) Major", "options": "-", "idp": "Yes"}]}, {"name": "Urban Studies", "level": "Undergraduate", "reviewTerm": "8", "initiated": "1985", "authPeriod": "2022-2030", "nextReview": "2028-2029", "senate": "Yes", "status": "Materials Received", "plans": [{"code": "URBST-BA", "title": "Urban Studies (BA)", "degree": "BA - Bachelor of Arts", "type": "(MAJ) Major", "options": "Departmental Honors", "idp": "Yes"}, {"code": "URBST-MIN", "title": "Urban Studies (Min)", "degree": "-", "type": "(MIN) Minor", "options": "Minor", "idp": "Yes"}]}];
+const LAST_UPDATED = "September 1, 2026";
+
+const DISPLAY_STATUS_MAP = {
+  "Letter Sent": "Review in Progress",
+  "Materials Received": "Review in Progress",
+  "Review Scheduled": "Review in Progress",
+  "Senate Session Scheduled": "Review in Progress",
+  "Closing": "Review in Progress"
+};
+function displayStatus(s){ return DISPLAY_STATUS_MAP[s] || s; }
+
+const STATUS_META = {
+  "Approved":                  {pill:"var(--palo)",  pillBg:"var(--palo-bg)",  accent:"var(--palo)"},
+  "No Review This Year":       {pill:"var(--ink-soft)", pillBg:"var(--grey-bg)", accent:"var(--line)"},
+  "Review This AY":            {pill:"var(--poppy)", pillBg:"var(--poppy-bg)", accent:"var(--cardinal)"},
+  "Review in Progress":        {pill:"var(--poppy)", pillBg:"var(--poppy-bg)", accent:"var(--cardinal)"},
+  "Delayed One Year":          {pill:"var(--cardinal)", pillBg:"var(--cardinal-bg)", accent:"var(--cardinal)"}
+};
+function statusMeta(s){ return STATUS_META[s] || {pill:"var(--ink-soft)", pillBg:"var(--grey-bg)", accent:"var(--line)"}; }
+function careerMeta(c){
+  return c === "Graduate"
+    ? {bg:"var(--plum-bg)", color:"var(--plum)"}
+    : {bg:"var(--sky-bg)", color:"var(--sky)"};
+}
+
+document.getElementById('updatedLine').textContent = "Last update on " + LAST_UPDATED;
+
+// ---------- stat cards ----------
+function renderStats(){
+  const totalPrograms = PROGRAMS.length;
+  const totalPlans = PROGRAMS.reduce((n,p)=>n+p.plans.length,0);
+  const underReview = PROGRAMS.filter(p=> displayStatus(p.status) !== "No Review This Year").length;
+  const terms = PROGRAMS.map(p=>parseFloat(p.reviewTerm)).filter(n=>!isNaN(n));
+  const avgTerm = (terms.reduce((a,b)=>a+b,0)/terms.length).toFixed(1);
+
+  const box = document.getElementById('statCards');
+  const cards = [
+    {num:totalPrograms, label:"Interdisciplinary programs tracked", accent:"var(--cardinal)"},
+    {num:totalPlans, label:"Degree plans (majors, minors, honors)", accent:"var(--sky)"},
+    {num:underReview, label:"Due for review this academic year", accent:"var(--poppy)"},
+    {num:avgTerm+" yrs", label:"Average review cycle length", accent:"var(--palo)"}
+  ];
+  box.innerHTML = cards.map(c=>`
+    <div class="stat-card" style="--accent:${c.accent}">
+      <div class="num">${c.num}</div>
+      <div class="label">${c.label}</div>
+    </div>`).join('');
+}
+
+// ---------- chart ----------
+function renderChart(){
+  const counts = {};
+  PROGRAMS.forEach(p=>{
+    counts[p.nextReview] = (counts[p.nextReview]||0)+1;
+  });
+  const cycles = Object.keys(counts).sort();
+  const max = Math.max(...Object.values(counts));
+  const chart = document.getElementById('chart');
+  chart.innerHTML = cycles.map(c=>{
+    const h = Math.round((counts[c]/max)*140) + 10;
+    return `
+      <div class="bar-col">
+        <div class="bar-count">${counts[c]}</div>
+        <div class="bar" style="height:${h}px"></div>
+        <div class="bar-label">${c}</div>
+      </div>`;
+  }).join('');
+}
+
+// ---------- under-review cards ----------
+function renderReviewCards(){
+  const list = PROGRAMS.filter(p=> {
+    const d = displayStatus(p.status);
+    return d !== "No Review This Year" && d !== "Delayed One Year";
+  });
+  const box = document.getElementById('reviewCards');
+  box.innerHTML = list.map(p=>{
+    const dStatus = displayStatus(p.status);
+    const meta = statusMeta(dStatus);
+    return `
+      <div class="review-card" style="--accent:${meta.accent}">
+        <div class="review-card-top">
+          <div class="review-card-name">${p.name}</div>
+          <span class="pill" style="color:${meta.pill};background:${meta.pillBg}">${dStatus}</span>
+        </div>
+        <div class="review-card-codes">
+          ${p.plans.map(pl=>`<span class="code-chip">${pl.code}</span>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ---------- status filter options ----------
+const STATUS_ORDER = ["Review This AY", "Review in Progress", "Delayed One Year", "Approved", "No Review This Year"];
+const presentStatuses = new Set(PROGRAMS.map(p=>displayStatus(p.status)));
+const ALL_STATUSES = STATUS_ORDER.filter(s=>presentStatuses.has(s));
+const statusSelect = document.getElementById('statusSelect');
+ALL_STATUSES.forEach(s=>{
+  const opt = document.createElement('option');
+  opt.value = s; opt.textContent = s;
+  statusSelect.appendChild(opt);
+});
+
+// ---------- table ----------
+function nextReviewSortKey(p){
+  const m = /(\d{4})/.exec(p.nextReview);
+  return m ? parseInt(m[1]) : 9999;
+}
+
+function renderTable(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const statusVal = statusSelect.value;
+  const careerVal = document.getElementById('careerSelect').value;
+
+  let list = PROGRAMS.filter(p=>{
+    if(statusVal !== 'all' && displayStatus(p.status) !== statusVal) return false;
+    if(careerVal !== 'all' && p.level !== careerVal) return false;
+    if(q){
+      const hay = (p.name + ' ' + p.plans.map(pl=>pl.code+' '+pl.title).join(' ')).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  list.sort((a,b)=>a.name.localeCompare(b.name) || nextReviewSortKey(a)-nextReviewSortKey(b));
+
+  document.getElementById('countLine').textContent = `${list.length} of ${PROGRAMS.length} programs`;
+
+  const tbody = document.getElementById('tableBody');
+  if(list.length===0){
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No programs match your filters.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  list.forEach((p,i)=>{
+    const dStatus = displayStatus(p.status);
+    const meta = statusMeta(dStatus);
+    const cMeta = careerMeta(p.level);
+    const rowId = `plans-${i}`;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>
+        <div class="prog-name">${p.name}</div>
+        <div class="show-plans" data-target="${rowId}">Show ${p.plans.length} plan${p.plans.length===1?'':'s'}</div>
+      </td>
+      <td><span class="pill" style="color:${cMeta.color};background:${cMeta.bg}">${p.level}</span></td>
+      <td>${p.plans.length}</td>
+      <td class="mono">${p.reviewTerm !== '-' ? p.reviewTerm.replace('.0','') + ' yrs' : '—'}</td>
+      <td class="mono">${p.initiated}</td>
+      <td class="mono">${p.authPeriod}</td>
+      <td class="mono">${p.nextReview}</td>
+      <td><span class="pill" style="color:${meta.pill};background:${meta.pillBg}">${dStatus}</span></td>
+    `;
+    tbody.appendChild(row);
+
+    const subRow = document.createElement('tr');
+    subRow.className = 'plan-subrow';
+    subRow.id = rowId;
+    subRow.style.display = 'none';
+    subRow.innerHTML = `
+      <td colspan="8">
+        <table class="plan-subtable">
+          ${p.plans.map(pl=>`
+            <tr>
+              <td class="code">${pl.code}</td>
+              <td>${pl.title}</td>
+              <td>${pl.idp==='Yes' ? 'IDP plan' : ''}</td>
+            </tr>`).join('')}
+        </table>
+      </td>`;
+    tbody.appendChild(subRow);
+
+    row.querySelector('.show-plans').addEventListener('click', (e)=>{
+      const target = document.getElementById(rowId);
+      const open = target.style.display !== 'none';
+      target.style.display = open ? 'none' : 'table-row';
+      e.currentTarget.textContent = (open ? 'Show ' : 'Hide ') + p.plans.length + ' plan' + (p.plans.length===1?'':'s');
+    });
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', renderTable);
+statusSelect.addEventListener('change', renderTable);
+document.getElementById('careerSelect').addEventListener('change', renderTable);
+
+renderStats();
+renderChart();
+renderReviewCards();
+renderTable();
+</script>
+</body>
+</html>
