@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interdisciplinary Programs at Stanford</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2e2d29;
+    --ink-soft:#6b675f;
+    --page:#f6f5f2;
+    --card:#ffffff;
+    --line:#e3e0d8;
+    --cardinal:#8c1515;
+    --cardinal-bg:#fbeaea;
+    --sky:#016895;
+    --sky-bg:#e5f1f6;
+    --poppy:#d1660f;
+    --poppy-bg:#fbead9;
+    --palo:#175e54;
+    --palo-bg:#e5efec;
+    --plum:#620059;
+    --plum-bg:#f2e6f0;
+    --grey-bg:#efeeea;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  a{color:var(--cardinal);text-decoration:underline;}
+  a:hover{color:var(--ink);}
+  body{
+    background:var(--page);
+    color:var(--ink);
+    font-family:'Arimo', sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 28px 80px;}
+
+  header{margin-bottom:26px;}
+  header h1{
+    font-size:1.85rem;
+    font-weight:700;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    font-size:0.88rem;
+    color:var(--ink-soft);
+  }
+  header .intro{
+    max-width:720px;
+    font-size:0.96rem;
+    color:var(--ink);
+    margin:12px 0 10px;
+    line-height:1.55;
+  }
+  header .updated{
+    font-size:0.82rem;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- stat cards ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:20px;
+  }
+  .stat-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-top:3px solid var(--accent);
+    border-radius:6px;
+    padding:18px 20px;
+  }
+  .stat-card .num{font-size:1.85rem;font-weight:700;line-height:1;}
+  .stat-card .label{font-size:0.82rem;color:var(--ink-soft);margin-top:6px;}
+
+  /* ---------- chart card ---------- */
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:22px 24px;
+    margin-bottom:20px;
+  }
+  .panel h2{font-size:1.05rem;font-weight:700;margin:0 0 2px;}
+  .panel .sub{font-size:0.82rem;color:var(--ink-soft);margin:0 0 18px;}
+
+  .chart{
+    display:flex;
+    align-items:flex-end;
+    gap:28px;
+    padding:10px 10px 0;
+    height:190px;
+  }
+  .bar-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+    flex:1;
+  }
+  .bar-count{font-size:0.82rem;font-weight:600;margin-bottom:6px;}
+  .bar{
+    width:34px;
+    background:var(--cardinal);
+    border-radius:3px 3px 0 0;
+  }
+  .bar-label{
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    margin-top:8px;
+    white-space:nowrap;
+  }
+
+  /* ---------- under-review cards ---------- */
+  .review-cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+  }
+  .review-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-left:3px solid var(--accent);
+    border-radius:5px;
+    padding:14px 16px;
+  }
+  .review-card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .review-card-name{font-size:0.92rem;font-weight:600;line-height:1.3;}
+  .review-card-codes{display:flex;flex-wrap:wrap;gap:6px;}
+  .code-chip{
+    font-family:'Roboto Mono', monospace;
+    font-size:0.7rem;
+    background:var(--grey-bg);
+    color:var(--ink-soft);
+    padding:3px 8px;
+    border-radius:3px;
+  }
+
+  /* ---------- pills ---------- */
+  .pill{
+    display:inline-block;
+    font-size:0.72rem;
+    font-weight:600;
+    padding:3px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  /* ---------- controls ---------- */
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .controls input[type="text"]{
+    flex:1 1 260px;
+    padding:10px 14px;
+    font-family:'Arimo', sans-serif;
+    font-size:0.9rem;
+    border:1px solid var(--line);
+    border-radius:5px;
+    background:var(--card);
+    color:var(--ink);
+  }
+  .controls select{
+    padding:9px 12px;
+    font-family:'Arimo', sans-serif;
+    font-size:0.85rem;
+    border:1px solid var(--line);
+    border-radius:5px;
+    background:var(--card);
+    color:var(--ink);
+  }
+  .controls .count{
+    font-size:0.82rem;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    margin-left:auto;
+  }
+
+  /* ---------- table ---------- */
+  table.registry{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  table.registry th{
+    text-align:left;
+    font-size:0.68rem;
+    font-weight:700;
+    letter-spacing:0.03em;
+    color:var(--ink-soft);
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    background:var(--grey-bg);
+    white-space:nowrap;
+  }
+  table.registry td{
+    padding:13px 14px;
+    border-bottom:1px solid var(--line);
+    font-size:0.86rem;
+    vertical-align:top;
+  }
+  table.registry tr:last-child td{border-bottom:none;}
+  .prog-name{font-weight:600;}
+  .show-plans{
+    display:inline-block;
+    margin-top:3px;
+    font-size:0.78rem;
+    color:var(--cardinal);
+    cursor:pointer;
+    user-select:none;
+  }
+  .show-plans:hover{text-decoration:underline;}
+  .plan-subrow td{
+    background:var(--grey-bg);
+    padding:0;
+  }
+  .plan-subtable{
+    width:100%;
+    border-collapse:collapse;
+  }
+  .plan-subtable td{
+    padding:8px 14px;
+    font-size:0.8rem;
+    border-bottom:1px solid var(--line);
+    color:var(--ink-soft);
+  }
+  .plan-subtable tr:last-child td{border-bottom:none;}
+  .plan-subtable .code{font-family:'Roboto Mono', monospace;color:var(--cardinal);}
+  .mono{font-family:'Roboto Mono', monospace;font-size:0.82rem;color:var(--ink-soft);}
+
+  .empty-row td{
+    text-align:center;
+    padding:50px 10px;
+    color:var(--ink-soft);
+  }
+
+  section{margin-bottom:28px;}
+  section h2{font-size:1.05rem;font-weight:700;margin:0 0 2px;}
+  section .sub{font-size:0.82rem;color:var(--ink-soft);margin:0 0 14px;}
+
+  footer{
+    margin-top:36px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-size:0.78rem;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:900px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .review-cards{grid-template-columns:repeat(2,1fr);}
+    table.registry{display:block;overflow-x:auto;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Interdisciplinary Programs at Stanford</h1>
+    <p class="intro">This page serves as Stanford's single source of truth for Interdisciplinary Programs (IDPs)—including undergraduate majors, minors, and interdisciplinary honors plans, as well as graduate degree programs. Staff and faculty may use this page to view all degree plans associated with each program and track each program's status in the Faculty Senate review cycle.</p>
+    <p class="updated" id="updatedLine">Last update —</p>
+  </header>
+
+  <div class="stats" id="statCards"></div>
+
+  <div class="panel">
+    <h2>Programs by next review cycle</h2>
+    <p class="sub">Review workload by upcoming academic year</p>
+    <div class="chart" id="chart"></div>
+  </div>
+
+  <section>
+    <h2>Programs currently under review</h2>
+    <p class="sub">Programs with an active status beyond "No Review This Year" or "Closing"</p>
+    <div class="review-cards" id="reviewCards"></div>
+  </section>
+
+  <section>
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Search programs…">
+      <select id="statusSelect"><option value="all">All statuses</option></select>
+      <select id="careerSelect">
+        <option value="all">All careers</option>
+        <option value="Undergraduate">Undergraduate</option>
+        <option value="Graduate">Graduate</option>
+      </select>
+      <span class="count" id="countLine"></span>
+    </div>
+
+    <table class="registry">
+      <thead>
+        <tr>
+          <th>Program</th>
+          <th>Career</th>
+          <th>Plans</th>
+          <th>Review term</th>
+          <th>Initiated</th>
+          <th>Authorization period</th>
+          <th>Next review cycle</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </section>
+
+  <footer>
+    This page is maintained by the Office of the University Registrar. The data is refreshed once per day so note that data may be up to 24 hours old. If you have questions or would like to submit feedback about this page, please <a href="https://stanford.service-now.com/student_services/en/submit-an-inquiry-to-the-office-of-the-university-registrar?id=sc_cat_item&amp;sys_id=7d89e78e87d34250a7a497d83cbb35e7" target="_blank" rel="noopener">submit a help ticket</a>.
+  </footer>
+
+</div>
+
+<script>
+const PROGRAMS = __PROGRAMS_JSON__;
+const LAST_UPDATED = "__LAST_UPDATED__";
+
+const DISPLAY_STATUS_MAP = {
+  "Letter Sent": "Review in Progress",
+  "Materials Received": "Review in Progress",
+  "Review Scheduled": "Review in Progress",
+  "Senate Session Scheduled": "Review in Progress",
+  "Closing": "Review in Progress"
+};
+function displayStatus(s){ return DISPLAY_STATUS_MAP[s] || s; }
+
+const STATUS_META = {
+  "Approved":                  {pill:"var(--palo)",  pillBg:"var(--palo-bg)",  accent:"var(--palo)"},
+  "No Review This Year":       {pill:"var(--ink-soft)", pillBg:"var(--grey-bg)", accent:"var(--line)"},
+  "Review This AY":            {pill:"var(--poppy)", pillBg:"var(--poppy-bg)", accent:"var(--cardinal)"},
+  "Review in Progress":        {pill:"var(--poppy)", pillBg:"var(--poppy-bg)", accent:"var(--cardinal)"},
+  "Delayed One Year":          {pill:"var(--cardinal)", pillBg:"var(--cardinal-bg)", accent:"var(--cardinal)"}
+};
+function statusMeta(s){ return STATUS_META[s] || {pill:"var(--ink-soft)", pillBg:"var(--grey-bg)", accent:"var(--line)"}; }
+function careerMeta(c){
+  return c === "Graduate"
+    ? {bg:"var(--plum-bg)", color:"var(--plum)"}
+    : {bg:"var(--sky-bg)", color:"var(--sky)"};
+}
+
+document.getElementById('updatedLine').textContent = "Last update on " + LAST_UPDATED;
+
+// ---------- stat cards ----------
+function renderStats(){
+  const totalPrograms = PROGRAMS.length;
+  const totalPlans = PROGRAMS.reduce((n,p)=>n+p.plans.length,0);
+  const underReview = PROGRAMS.filter(p=> displayStatus(p.status) !== "No Review This Year").length;
+  const terms = PROGRAMS.map(p=>parseFloat(p.reviewTerm)).filter(n=>!isNaN(n));
+  const avgTerm = (terms.reduce((a,b)=>a+b,0)/terms.length).toFixed(1);
+
+  const box = document.getElementById('statCards');
+  const cards = [
+    {num:totalPrograms, label:"Interdisciplinary programs tracked", accent:"var(--cardinal)"},
+    {num:totalPlans, label:"Degree plans (majors, minors, honors)", accent:"var(--sky)"},
+    {num:underReview, label:"Due for review this academic year", accent:"var(--poppy)"},
+    {num:avgTerm+" yrs", label:"Average review cycle length", accent:"var(--palo)"}
+  ];
+  box.innerHTML = cards.map(c=>`
+    <div class="stat-card" style="--accent:${c.accent}">
+      <div class="num">${c.num}</div>
+      <div class="label">${c.label}</div>
+    </div>`).join('');
+}
+
+// ---------- chart ----------
+function renderChart(){
+  const counts = {};
+  PROGRAMS.forEach(p=>{
+    counts[p.nextReview] = (counts[p.nextReview]||0)+1;
+  });
+  const cycles = Object.keys(counts).sort();
+  const max = Math.max(...Object.values(counts));
+  const chart = document.getElementById('chart');
+  chart.innerHTML = cycles.map(c=>{
+    const h = Math.round((counts[c]/max)*140) + 10;
+    return `
+      <div class="bar-col">
+        <div class="bar-count">${counts[c]}</div>
+        <div class="bar" style="height:${h}px"></div>
+        <div class="bar-label">${c}</div>
+      </div>`;
+  }).join('');
+}
+
+// ---------- under-review cards ----------
+function renderReviewCards(){
+  const list = PROGRAMS.filter(p=> {
+    const d = displayStatus(p.status);
+    return d !== "No Review This Year" && d !== "Delayed One Year";
+  });
+  const box = document.getElementById('reviewCards');
+  box.innerHTML = list.map(p=>{
+    const dStatus = displayStatus(p.status);
+    const meta = statusMeta(dStatus);
+    return `
+      <div class="review-card" style="--accent:${meta.accent}">
+        <div class="review-card-top">
+          <div class="review-card-name">${p.name}</div>
+          <span class="pill" style="color:${meta.pill};background:${meta.pillBg}">${dStatus}</span>
+        </div>
+        <div class="review-card-codes">
+          ${p.plans.map(pl=>`<span class="code-chip">${pl.code}</span>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ---------- status filter options ----------
+const STATUS_ORDER = ["Review This AY", "Review in Progress", "Delayed One Year", "Approved", "No Review This Year"];
+const presentStatuses = new Set(PROGRAMS.map(p=>displayStatus(p.status)));
+const ALL_STATUSES = STATUS_ORDER.filter(s=>presentStatuses.has(s));
+const statusSelect = document.getElementById('statusSelect');
+ALL_STATUSES.forEach(s=>{
+  const opt = document.createElement('option');
+  opt.value = s; opt.textContent = s;
+  statusSelect.appendChild(opt);
+});
+
+// ---------- table ----------
+function nextReviewSortKey(p){
+  const m = /(\d{4})/.exec(p.nextReview);
+  return m ? parseInt(m[1]) : 9999;
+}
+
+function renderTable(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const statusVal = statusSelect.value;
+  const careerVal = document.getElementById('careerSelect').value;
+
+  let list = PROGRAMS.filter(p=>{
+    if(statusVal !== 'all' && displayStatus(p.status) !== statusVal) return false;
+    if(careerVal !== 'all' && p.level !== careerVal) return false;
+    if(q){
+      const hay = (p.name + ' ' + p.plans.map(pl=>pl.code+' '+pl.title).join(' ')).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  list.sort((a,b)=>a.name.localeCompare(b.name) || nextReviewSortKey(a)-nextReviewSortKey(b));
+
+  document.getElementById('countLine').textContent = `${list.length} of ${PROGRAMS.length} programs`;
+
+  const tbody = document.getElementById('tableBody');
+  if(list.length===0){
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No programs match your filters.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  list.forEach((p,i)=>{
+    const dStatus = displayStatus(p.status);
+    const meta = statusMeta(dStatus);
+    const cMeta = careerMeta(p.level);
+    const rowId = `plans-${i}`;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>
+        <div class="prog-name">${p.name}</div>
+        <div class="show-plans" data-target="${rowId}">Show ${p.plans.length} plan${p.plans.length===1?'':'s'}</div>
+      </td>
+      <td><span class="pill" style="color:${cMeta.color};background:${cMeta.bg}">${p.level}</span></td>
+      <td>${p.plans.length}</td>
+      <td class="mono">${p.reviewTerm !== '-' ? p.reviewTerm.replace('.0','') + ' yrs' : '—'}</td>
+      <td class="mono">${p.initiated}</td>
+      <td class="mono">${p.authPeriod}</td>
+      <td class="mono">${p.nextReview}</td>
+      <td><span class="pill" style="color:${meta.pill};background:${meta.pillBg}">${dStatus}</span></td>
+    `;
+    tbody.appendChild(row);
+
+    const subRow = document.createElement('tr');
+    subRow.className = 'plan-subrow';
+    subRow.id = rowId;
+    subRow.style.display = 'none';
+    subRow.innerHTML = `
+      <td colspan="8">
+        <table class="plan-subtable">
+          ${p.plans.map(pl=>`
+            <tr>
+              <td class="code">${pl.code}</td>
+              <td>${pl.title}</td>
+              <td>${pl.idp==='Yes' ? 'IDP plan' : ''}</td>
+            </tr>`).join('')}
+        </table>
+      </td>`;
+    tbody.appendChild(subRow);
+
+    row.querySelector('.show-plans').addEventListener('click', (e)=>{
+      const target = document.getElementById(rowId);
+      const open = target.style.display !== 'none';
+      target.style.display = open ? 'none' : 'table-row';
+      e.currentTarget.textContent = (open ? 'Show ' : 'Hide ') + p.plans.length + ' plan' + (p.plans.length===1?'':'s');
+    });
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', renderTable);
+statusSelect.addEventListener('change', renderTable);
+document.getElementById('careerSelect').addEventListener('change', renderTable);
+
+renderStats();
+renderChart();
+renderReviewCards();
+renderTable();
+</script>
+</body>
+</html>
