@@ -1,0 +1,46 @@
+name: Daily IDP dashboard refresh
+
+on:
+  schedule:
+    # 13:00 UTC ≈ 6:00 AM Pacific Daylight Time (UTC-7, roughly Mar–Nov).
+    # During Pacific Standard Time (UTC-8, roughly Nov–Mar) this runs at 5:00 AM instead.
+    # If you want it locked to exactly 6:00 AM year-round, add a second cron line
+    # for 14:00 UTC and let both trigger — the second run just overwrites with
+    # the same data on the day they'd otherwise disagree.
+    - cron: "0 13 * * *"
+  workflow_dispatch: {}   # lets you trigger a refresh manually from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Rebuild dashboard from Smartsheet
+        env:
+          SMARTSHEET_TOKEN: ${{ secrets.SMARTSHEET_TOKEN }}
+        run: python update_dashboard.py
+
+      - name: Commit and push if the data changed
+        run: |
+          git config user.name "idp-dashboard-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --staged --quiet; then
+            echo "No changes today."
+          else
+            git commit -m "Daily data refresh"
+            git push
+          fi
