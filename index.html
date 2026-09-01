@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stanford IDP Tracker</title>
+<title>Interdisciplinary Programs at Stanford</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -28,6 +28,8 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
+  a{color:var(--cardinal);text-decoration:underline;}
+  a:hover{color:var(--ink);}
   body{
     background:var(--page);
     color:var(--ink);
@@ -47,6 +49,17 @@
   header p{
     margin:0;
     font-size:0.88rem;
+    color:var(--ink-soft);
+  }
+  header .intro{
+    max-width:720px;
+    font-size:0.96rem;
+    color:var(--ink);
+    margin:12px 0 10px;
+    line-height:1.55;
+  }
+  header .updated{
+    font-size:0.82rem;
     color:var(--ink-soft);
   }
 
@@ -265,8 +278,9 @@
 <div class="wrap">
 
   <header>
-    <h1>Stanford's Interdisciplinary Programs (IDP) Tracker</h1>
-    <p id="updatedLine">Last update —</p>
+    <h1>Interdisciplinary Programs at Stanford</h1>
+    <p class="intro">This page serves as Stanford's single source of truth for Interdisciplinary Programs (IDPs)—including undergraduate majors, minors, and interdisciplinary honors plans, as well as graduate degree programs. Staff and faculty may use this page to view all degree plans associated with each program and track each program's status in the Faculty Senate review cycle.</p>
+    <p class="updated" id="updatedLine">Last update —</p>
   </header>
 
   <div class="stats" id="statCards"></div>
@@ -313,7 +327,7 @@
   </section>
 
   <footer>
-    Pulled from a live Smartsheet maintained by the program's administrators. Figures reflect the sheet's last save — check with the relevant department for anything time‑sensitive.
+    This page is maintained by the Office of the University Registrar. The data is refreshed once per day so note that data may be up to 24 hours old. If you have questions or would like to submit feedback about this page, please <a href="https://stanford.service-now.com/student_services/en/submit-an-inquiry-to-the-office-of-the-university-registrar?id=sc_cat_item&amp;sys_id=7d89e78e87d34250a7a497d83cbb35e7" target="_blank" rel="noopener">submit a help ticket</a>.
   </footer>
 
 </div>
