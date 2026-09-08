@@ -79,6 +79,44 @@
   }
   .stat-card .num{font-size:1.85rem;font-weight:700;line-height:1;}
   .stat-card .label{font-size:0.82rem;color:var(--ink-soft);margin-top:6px;}
+  .split-stat{display:flex;gap:18px;}
+  .split-stat > div{flex:1;}
+  .split-stat .num{font-size:1.5rem;}
+  .split-stat .label{font-size:0.76rem;}
+
+  .chart-toggles{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .toggle-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:0.8rem;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    cursor:pointer;
+    user-select:none;
+    background:var(--card);
+    color:var(--ink-soft);
+    opacity:0.5;
+    transition:opacity .12s;
+  }
+  .toggle-chip.active{opacity:1;}
+  .toggle-chip .swatch{width:9px;height:9px;border-radius:50%;}
+
+  .bar-stack{
+    display:flex;
+    flex-direction:column;
+    width:34px;
+    border-radius:3px 3px 0 0;
+    overflow:hidden;
+  }
+  .bar-seg.ug{background:var(--sky);}
+  .bar-seg.grad{background:var(--plum);}
 
   /* ---------- chart card ---------- */
   .panel{
@@ -295,8 +333,9 @@
   <div class="stats" id="statCards"></div>
 
   <div class="panel">
-    <h2>Programs by next review cycle</h2>
-    <p class="sub">Review workload by upcoming academic year</p>
+    <h2>Programs by Review Cycle</h2>
+    <p class="sub">Review workload by upcoming academic year — toggle to filter by career</p>
+    <div class="chart-toggles" id="chartToggles"></div>
     <div class="chart" id="chart"></div>
   </div>
 
@@ -375,38 +414,87 @@ function renderStats(){
   const totalPrograms = PROGRAMS.length;
   const totalPlans = PROGRAMS.reduce((n,p)=>n+p.plans.length,0);
   const underReview = PROGRAMS.filter(p=> displayStatus(p.status) !== "No Review This Year").length;
-  const terms = PROGRAMS.map(p=>parseFloat(p.reviewTerm)).filter(n=>!isNaN(n));
-  const avgTerm = (terms.reduce((a,b)=>a+b,0)/terms.length).toFixed(1);
+  const ugCount = PROGRAMS.filter(p=>p.level === "Undergraduate").length;
+  const gradCount = PROGRAMS.filter(p=>p.level === "Graduate").length;
 
   const box = document.getElementById('statCards');
-  const cards = [
-    {num:totalPrograms, label:"Interdisciplinary programs tracked", accent:"var(--cardinal)"},
-    {num:totalPlans, label:"Degree plans (majors, minors, honors)", accent:"var(--sky)"},
-    {num:underReview, label:"Due for review this academic year", accent:"var(--poppy)"},
-    {num:avgTerm+" yrs", label:"Average review cycle length", accent:"var(--palo)"}
-  ];
-  box.innerHTML = cards.map(c=>`
-    <div class="stat-card" style="--accent:${c.accent}">
-      <div class="num">${c.num}</div>
-      <div class="label">${c.label}</div>
-    </div>`).join('');
+  box.innerHTML = `
+    <div class="stat-card" style="--accent:var(--cardinal)">
+      <div class="num">${totalPrograms}</div>
+      <div class="label">Interdisciplinary programs tracked</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--sky)">
+      <div class="num">${totalPlans}</div>
+      <div class="label">Degree plans (majors, minors, honors)</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--poppy)">
+      <div class="num">${underReview}</div>
+      <div class="label">Due for review this academic year</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--palo)">
+      <div class="split-stat">
+        <div><div class="num">${ugCount}</div><div class="label">for C-RUM review</div></div>
+        <div><div class="num">${gradCount}</div><div class="label">for C-GS review</div></div>
+      </div>
+    </div>
+  `;
 }
 
 // ---------- chart ----------
-function renderChart(){
-  const counts = {};
-  PROGRAMS.forEach(p=>{
-    counts[p.nextReview] = (counts[p.nextReview]||0)+1;
+const chartToggles = { Undergraduate: true, Graduate: true };
+
+function renderChartToggles(){
+  const box = document.getElementById('chartToggles');
+  box.innerHTML = `
+    <div class="toggle-chip ${chartToggles.Undergraduate ? 'active' : ''}" data-level="Undergraduate">
+      <span class="swatch" style="background:var(--sky)"></span>Undergraduate
+    </div>
+    <div class="toggle-chip ${chartToggles.Graduate ? 'active' : ''}" data-level="Graduate">
+      <span class="swatch" style="background:var(--plum)"></span>Graduate
+    </div>
+  `;
+  box.querySelectorAll('.toggle-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const level = chip.dataset.level;
+      chartToggles[level] = !chartToggles[level];
+      renderChartToggles();
+      renderChart();
+    });
   });
-  const cycles = Object.keys(counts).sort();
-  const max = Math.max(...Object.values(counts));
+}
+
+function renderChart(){
+  const included = PROGRAMS.filter(p => chartToggles[p.level]);
+  const counts = {};
+  included.forEach(p=>{
+    if(!counts[p.nextReview]) counts[p.nextReview] = {Undergraduate:0, Graduate:0};
+    counts[p.nextReview][p.level] = (counts[p.nextReview][p.level]||0)+1;
+  });
+  const cycles = Object.keys(counts)
+    .filter(c => counts[c].Undergraduate + counts[c].Graduate > 0)
+    .sort();
+  const max = Math.max(...cycles.map(c=>counts[c].Undergraduate + counts[c].Graduate), 1);
   const chart = document.getElementById('chart');
+
+  if(cycles.length === 0){
+    chart.innerHTML = `<div style="padding:40px 0;color:var(--ink-soft);font-size:0.85rem;">No programs match the selected filters.</div>`;
+    return;
+  }
+
   chart.innerHTML = cycles.map(c=>{
-    const h = Math.round((counts[c]/max)*140) + 10;
+    const ug = counts[c].Undergraduate;
+    const grad = counts[c].Graduate;
+    const total = ug + grad;
+    const totalH = Math.round((total/max)*140) + 10;
+    const ugH = total ? Math.round((ug/total)*totalH) : 0;
+    const gradH = totalH - ugH;
     return `
       <div class="bar-col">
-        <div class="bar-count">${counts[c]}</div>
-        <div class="bar" style="height:${h}px"></div>
+        <div class="bar-count">${total}</div>
+        <div class="bar-stack" style="height:${totalH}px">
+          ${gradH>0 ? `<div class="bar-seg grad" style="height:${gradH}px" title="${grad} graduate"></div>` : ''}
+          ${ugH>0 ? `<div class="bar-seg ug" style="height:${ugH}px" title="${ug} undergraduate"></div>` : ''}
+        </div>
         <div class="bar-label">${c}</div>
       </div>`;
   }).join('');
@@ -574,6 +662,7 @@ statusSelect.addEventListener('change', renderTable);
 document.getElementById('careerSelect').addEventListener('change', renderTable);
 
 renderStats();
+renderChartToggles();
 renderChart();
 renderReviewCards();
 renderTable();
