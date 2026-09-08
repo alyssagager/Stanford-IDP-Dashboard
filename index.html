@@ -79,10 +79,9 @@
   }
   .stat-card .num{font-size:1.85rem;font-weight:700;line-height:1;}
   .stat-card .label{font-size:0.82rem;color:var(--ink-soft);margin-top:6px;}
-  .split-stat{display:flex;gap:18px;}
-  .split-stat > div{flex:1;}
-  .split-stat .num{font-size:1.5rem;}
-  .split-stat .label{font-size:0.76rem;}
+  .num-row-a{display:flex;align-items:baseline;gap:10px;}
+  .num-row-a .num{font-size:1.85rem;font-weight:700;line-height:1;}
+  .num-row-a .sep{font-size:1.3rem;color:var(--ink-soft);font-weight:400;}
 
   .chart-toggles{
     display:flex;
@@ -443,15 +442,17 @@ function renderStats(){
       <div class="num">${totalPlans}</div>
       <div class="label">Degree plans (majors, minors, honors)</div>
     </div>
+    <div class="stat-card" style="--accent:var(--palo)">
+      <div class="num-row-a">
+        <span class="num" style="color:var(--sky)">${ugCount}</span>
+        <span class="sep">/</span>
+        <span class="num" style="color:var(--plum)">${gradCount}</span>
+      </div>
+      <div class="label">C-RUM / C-GS</div>
+    </div>
     <div class="stat-card" style="--accent:var(--poppy)">
       <div class="num">${underReview}</div>
       <div class="label">Due for review this academic year</div>
-    </div>
-    <div class="stat-card" style="--accent:var(--palo)">
-      <div class="split-stat">
-        <div><div class="num">${ugCount}</div><div class="label">for C-RUM review</div></div>
-        <div><div class="num">${gradCount}</div><div class="label">for C-GS review</div></div>
-      </div>
     </div>
   `;
 }
