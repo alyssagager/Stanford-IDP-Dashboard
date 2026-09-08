@@ -66,7 +66,7 @@
   /* ---------- stat cards ---------- */
   .stats{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(3,1fr);
     gap:16px;
     margin-bottom:20px;
   }
@@ -79,9 +79,6 @@
   }
   .stat-card .num{font-size:1.85rem;font-weight:700;line-height:1;}
   .stat-card .label{font-size:0.82rem;color:var(--ink-soft);margin-top:6px;}
-  .num-row-a{display:flex;align-items:baseline;gap:10px;}
-  .num-row-a .num{font-size:1.85rem;font-weight:700;line-height:1;}
-  .num-row-a .sep{font-size:1.3rem;color:var(--ink-soft);font-weight:400;}
 
   .chart-toggles{
     display:flex;
@@ -363,14 +360,14 @@
     <table class="registry">
       <colgroup>
         <col style="width:20%">
-        <col style="width:11%">
+        <col style="width:13%">
         <col style="width:7%">
-        <col style="width:11%">
-        <col style="width:11%">
+        <col style="width:13%">
+        <col style="width:8%">
         <col style="width:7%">
-        <col style="width:11%">
-        <col style="width:11%">
-        <col style="width:11%">
+        <col style="width:8%">
+        <col style="width:8%">
+        <col style="width:16%">
       </colgroup>
       <thead>
         <tr>
@@ -429,8 +426,6 @@ function renderStats(){
   const totalPrograms = PROGRAMS.length;
   const totalPlans = PROGRAMS.reduce((n,p)=>n+p.plans.length,0);
   const underReview = PROGRAMS.filter(p=> displayStatus(p.status) !== "No Review This Year").length;
-  const ugCount = PROGRAMS.filter(p=>p.level === "Undergraduate").length;
-  const gradCount = PROGRAMS.filter(p=>p.level === "Graduate").length;
 
   const box = document.getElementById('statCards');
   box.innerHTML = `
@@ -441,14 +436,6 @@ function renderStats(){
     <div class="stat-card" style="--accent:var(--sky)">
       <div class="num">${totalPlans}</div>
       <div class="label">Degree plans (majors, minors, honors)</div>
-    </div>
-    <div class="stat-card" style="--accent:var(--palo)">
-      <div class="num-row-a">
-        <span class="num">${ugCount}</span>
-        <span class="sep">/</span>
-        <span class="num">${gradCount}</span>
-      </div>
-      <div class="label">C-RUM / C-GS</div>
     </div>
     <div class="stat-card" style="--accent:var(--poppy)">
       <div class="num">${underReview}</div>
