@@ -363,6 +363,7 @@
           <th data-key="name">Program<span class="sort-arrow"></span></th>
           <th data-key="career">Career<span class="sort-arrow"></span></th>
           <th data-key="plans">Plans<span class="sort-arrow"></span></th>
+          <th data-key="lastSenD">Last SenD for Approval<span class="sort-arrow"></span></th>
           <th data-key="reviewTerm">Review term<span class="sort-arrow"></span></th>
           <th data-key="initiated">Initiated<span class="sort-arrow"></span></th>
           <th data-key="authPeriod">Authorization period<span class="sort-arrow"></span></th>
@@ -547,6 +548,7 @@ function sortKeyFor(p, key){
     case 'name': return p.name.toLowerCase();
     case 'career': return (p.level || '').toLowerCase();
     case 'plans': return p.plans.length;
+    case 'lastSenD': return (p.lastSenD || '').toLowerCase();
     case 'reviewTerm': { const n = parseFloat(p.reviewTerm); return isNaN(n) ? -1 : n; }
     case 'initiated': { const n = parseFloat(p.initiated); return isNaN(n) ? -1 : n; }
     case 'authPeriod': { const m = /(\d{4})/.exec(p.authPeriod); return m ? parseInt(m[1]) : 9999; }
@@ -605,7 +607,7 @@ function renderTable(){
 
   const tbody = document.getElementById('tableBody');
   if(list.length===0){
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No programs match your filters.</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="9">No programs match your filters.</td></tr>`;
     return;
   }
 
@@ -623,6 +625,7 @@ function renderTable(){
       </td>
       <td><span class="pill" style="color:${cMeta.color};background:${cMeta.bg}">${p.level}</span></td>
       <td>${p.plans.length}</td>
+      <td class="mono">${p.lastSenD && p.lastSenD !== '-' ? p.lastSenD : '—'}</td>
       <td class="mono">${p.reviewTerm !== '-' ? p.reviewTerm.replace('.0','') + ' yrs' : '—'}</td>
       <td class="mono">${p.initiated}</td>
       <td class="mono">${p.authPeriod}</td>
@@ -636,7 +639,7 @@ function renderTable(){
     subRow.id = rowId;
     subRow.style.display = 'none';
     subRow.innerHTML = `
-      <td colspan="8">
+      <td colspan="9">
         <table class="plan-subtable">
           ${p.plans.map(pl=>`
             <tr>
