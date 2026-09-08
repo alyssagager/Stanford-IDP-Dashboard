@@ -213,6 +213,15 @@
     border-bottom:1px solid var(--line);
     background:var(--grey-bg);
     white-space:nowrap;
+    cursor:pointer;
+    user-select:none;
+  }
+  table.registry th:hover{color:var(--ink);}
+  table.registry th .sort-arrow{
+    display:inline-block;
+    width:12px;
+    font-size:0.7rem;
+    color:var(--cardinal);
   }
   table.registry td{
     padding:13px 14px;
@@ -312,14 +321,14 @@
     <table class="registry">
       <thead>
         <tr>
-          <th>Program</th>
-          <th>Career</th>
-          <th>Plans</th>
-          <th>Review term</th>
-          <th>Initiated</th>
-          <th>Authorization period</th>
-          <th>Next review cycle</th>
-          <th>Status</th>
+          <th data-key="name">Program<span class="sort-arrow"></span></th>
+          <th data-key="career">Career<span class="sort-arrow"></span></th>
+          <th data-key="plans">Plans<span class="sort-arrow"></span></th>
+          <th data-key="reviewTerm">Review term<span class="sort-arrow"></span></th>
+          <th data-key="initiated">Initiated<span class="sort-arrow"></span></th>
+          <th data-key="authPeriod">Authorization period<span class="sort-arrow"></span></th>
+          <th data-key="nextReview">Next review cycle<span class="sort-arrow"></span></th>
+          <th data-key="status">Status<span class="sort-arrow"></span></th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
@@ -443,6 +452,43 @@ function nextReviewSortKey(p){
   return m ? parseInt(m[1]) : 9999;
 }
 
+let sortState = { key: 'name', dir: 'asc' };
+
+function sortKeyFor(p, key){
+  switch(key){
+    case 'name': return p.name.toLowerCase();
+    case 'career': return (p.level || '').toLowerCase();
+    case 'plans': return p.plans.length;
+    case 'reviewTerm': { const n = parseFloat(p.reviewTerm); return isNaN(n) ? -1 : n; }
+    case 'initiated': { const n = parseFloat(p.initiated); return isNaN(n) ? -1 : n; }
+    case 'authPeriod': { const m = /(\d{4})/.exec(p.authPeriod); return m ? parseInt(m[1]) : 9999; }
+    case 'nextReview': return nextReviewSortKey(p);
+    case 'status': return displayStatus(p.status).toLowerCase();
+    default: return '';
+  }
+}
+
+document.querySelectorAll('table.registry th').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const key = th.dataset.key;
+    if(sortState.key === key){
+      sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortState.key = key;
+      sortState.dir = 'asc';
+    }
+    renderTable();
+  });
+});
+
+function updateSortArrows(){
+  document.querySelectorAll('table.registry th').forEach(th=>{
+    const arrow = th.querySelector('.sort-arrow');
+    if(!arrow) return;
+    arrow.textContent = th.dataset.key === sortState.key ? (sortState.dir === 'asc' ? '▲' : '▼') : '';
+  });
+}
+
 function renderTable(){
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   const statusVal = statusSelect.value;
@@ -457,7 +503,15 @@ function renderTable(){
     }
     return true;
   });
-  list.sort((a,b)=>a.name.localeCompare(b.name) || nextReviewSortKey(a)-nextReviewSortKey(b));
+  list.sort((a,b)=>{
+    const ka = sortKeyFor(a, sortState.key);
+    const kb = sortKeyFor(b, sortState.key);
+    let cmp = (typeof ka === 'string') ? ka.localeCompare(kb) : ka - kb;
+    if(cmp === 0) cmp = a.name.localeCompare(b.name);
+    return sortState.dir === 'asc' ? cmp : -cmp;
+  });
+
+  updateSortArrows();
 
   document.getElementById('countLine').textContent = `${list.length} of ${PROGRAMS.length} programs`;
 
