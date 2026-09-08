@@ -235,6 +235,7 @@
   /* ---------- table ---------- */
   table.registry{
     width:100%;
+    table-layout:fixed;
     border-collapse:collapse;
     background:var(--card);
     border:1px solid var(--line);
@@ -247,12 +248,14 @@
     font-weight:700;
     letter-spacing:0.03em;
     color:var(--ink-soft);
-    padding:12px 14px;
+    padding:12px 10px;
     border-bottom:1px solid var(--line);
     background:var(--grey-bg);
-    white-space:nowrap;
+    white-space:normal;
+    line-height:1.3;
     cursor:pointer;
     user-select:none;
+    vertical-align:bottom;
   }
   table.registry th:hover{color:var(--ink);}
   table.registry th .sort-arrow{
@@ -358,16 +361,27 @@
     </div>
 
     <table class="registry">
+      <colgroup>
+        <col style="width:20%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:10%">
+      </colgroup>
       <thead>
         <tr>
           <th data-key="name">Program<span class="sort-arrow"></span></th>
           <th data-key="career">Career<span class="sort-arrow"></span></th>
           <th data-key="plans">Plans<span class="sort-arrow"></span></th>
-          <th data-key="lastSenD">Last SenD for Approval<span class="sort-arrow"></span></th>
-          <th data-key="reviewTerm">Review term<span class="sort-arrow"></span></th>
+          <th data-key="lastSenD">Last Senate Document<span class="sort-arrow"></span></th>
+          <th data-key="reviewTerm">Review Term<span class="sort-arrow"></span></th>
           <th data-key="initiated">Initiated<span class="sort-arrow"></span></th>
-          <th data-key="authPeriod">Authorization period<span class="sort-arrow"></span></th>
-          <th data-key="nextReview">Next review cycle<span class="sort-arrow"></span></th>
+          <th data-key="authPeriod">Authorization Period<span class="sort-arrow"></span></th>
+          <th data-key="nextReview">Next Review Cycle<span class="sort-arrow"></span></th>
           <th data-key="status">Status<span class="sort-arrow"></span></th>
         </tr>
       </thead>
