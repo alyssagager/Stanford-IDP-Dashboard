@@ -60,6 +60,7 @@ def parse_programs(sheet: dict):
             current = {
                 "name": str(cells.get("Department", "")).replace(" (UG)", "").strip(),
                 "level": cells.get("GR/UG?", ""),
+                "lastSenD": str(cells.get("Last SenD for Approval", "-")),
                 "reviewTerm": clean_num(cells.get("Review Term (in years)", "-")),
                 "initiated": clean_num(cells.get("Program Initiated", "-")),
                 "authPeriod": str(cells.get("Authorization Period", "-")),
